@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mastermind Pro</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: Arial, Helvetica, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Twinkling Stars */
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+            box-shadow: 0 0 8px white;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(2);
+            }
+        }
+
+        /* Moving particles */
+        .particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 8s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .game-box {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            margin: auto;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .info {
+            background: #f2f2f2;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            font-size: 20px;
+            text-align: center;
+            border-radius: 10px;
+            border: 1px solid gray;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        li {
+            list-style: none;
+            margin: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .game-box {
+                width: 94%;
+                padding: 18px 14px;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 15px;
+            }
+
+            input {
+                width: 70%;
+                font-size: 16px; /* keeps iOS Safari from auto-zooming on focus */
+                padding: 10px;
+            }
+
+            button {
+                padding: 10px 14px;
+                font-size: 14px;
+                margin: 4px 3px;
+            }
+
+            .message {
+                font-size: 16px;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="stars">
+    <div class="star" style="top:5%;left:10%;animation-delay:0s;"></div>
+    <div class="star" style="top:12%;left:40%;animation-delay:1s;"></div>
+    <div class="star" style="top:20%;left:80%;animation-delay:2s;"></div>
+    <div class="star" style="top:30%;left:25%;animation-delay:3s;"></div>
+    <div class="star" style="top:45%;left:65%;animation-delay:0.5s;"></div>
+    <div class="star" style="top:60%;left:15%;animation-delay:1.5s;"></div>
+    <div class="star" style="top:75%;left:50%;animation-delay:2.5s;"></div>
+    <div class="star" style="top:85%;left:90%;animation-delay:0.8s;"></div>
+    <div class="star" style="top:35%;left:95%;animation-delay:1.8s;"></div>
+    <div class="star" style="top:55%;left:35%;animation-delay:2.8s;"></div>
+</div>
+
+<div class="game-box">
+
+<h1>🎯 Mastermind Pro</h1>
+
+<div class="info">
+
+<h3>
+🎮 Difficulty:
+{% if length == 3 %}
+Easy
+{% elif length == 4 %}
+Medium
+{% else %}
+Hard
+{% endif %}
+</h3>
+
+<h3>
+❤️ Attempts Left:
+{{ attempts }}/20
+</h3>
+
+<h3>
+🔢 Guess a {{ length }}-digit secret number
+</h3>
+
+</div>
+
+<form method="POST">
+<button name="difficulty" value="easy">Easy</button>
+<button name="difficulty" value="medium">Medium</button>
+<button name="difficulty" value="hard">Hard</button>
+</form>
+
+<form method="POST">
+<input
+    type="text"
+    name="guess"
+    maxlength="{{ length }}"
+    placeholder="Enter number"
+    required>
+<br><br>
+<button>🎯 Guess</button>
+</form>
+
+<div class="message">
+{{ message|safe }}
+</div>
+
+<h3>📜 History</h3>
+
+<ul>
+{% for item in history %}
+<li>{{ item }}</li>
+{% endfor %}
+</ul>
+
+<form action="/play_again">
+<button>🔄 Play Again</button>
+</form>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<script>
+const message = document.querySelector(".message").innerText;
+
+if (message.includes("YOU WON")) {
+
+    // Big first explosion, center stage
+    confetti({
+        particleCount: 250,
+        spread: 130,
+        startVelocity: 45,
+        origin: { y: 0.6 }
+    });
+
+    // Side cannons firing inward
+    setTimeout(() => {
+        confetti({
+            particleCount: 120,
+            angle: 60,
+            spread: 80,
+            startVelocity: 55,
+            origin: { x: 0 }
+        });
+
+        confetti({
+            particleCount: 120,
+            angle: 120,
+            spread: 80,
+            startVelocity: 55,
+            origin: { x: 1 }
+        });
+    }, 400);
+
+    // A second big pop for extra drama
+    setTimeout(() => {
+        confetti({
+            particleCount: 200,
+            spread: 160,
+            startVelocity: 40,
+            origin: { y: 0.5 }
+        });
+    }, 900);
+
+    // Continuous random firework crackers for several seconds
+    let end = Date.now() + 6000;
+
+    const colors = ["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"];
+
+    function fireworks() {
+        confetti({
+            particleCount: 30,
+            startVelocity: 35,
+            spread: 100,
+            colors: colors,
+            origin: {
+                x: Math.random(),
+                y: Math.random() - 0.2
+            }
+        });
+
+        if (Date.now() < end) {
+            requestAnimationFrame(fireworks);
+        }
+    }
+
+    fireworks();
+}
+</script>
+
+</body>
+</html>
